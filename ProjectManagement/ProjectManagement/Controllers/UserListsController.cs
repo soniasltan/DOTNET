@@ -11,14 +11,14 @@ using ProjectManagement.Models;
 
 namespace ProjectManagement.Controllers
 {
-    public class ResponseModel
+    public class UserListResponseModel
     {
         public string Message { set; get; }
         public bool Status { set; get; }
         public List<dynamic> Data { set; get; }
     }
 
-    public class StatusResponseModel
+    public class UserListStatusResponseModel
     {
         public string Message { set; get; }
         public bool Status { set; get; }
@@ -27,24 +27,24 @@ namespace ProjectManagement.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class UserRolesController : Controller
+    public class UserListsController : Controller
     {
         private IConfiguration _configuration;
 
-        public UserRolesController(IConfiguration config)
+        public UserListsController(IConfiguration config)
         {
             _configuration = config;
         }
 
         // GET: api/values
         [HttpGet]
-        public ResponseModel Get()
+        public UserListResponseModel Get()
         {
-            ResponseModel _objResponseModel = new ResponseModel();
+            UserListResponseModel _objResponseModel = new UserListResponseModel();
 
             string query = @"
                             select * from
-                            user_roles
+                            user_list
                             ";
 
             DataTable table = new DataTable();
@@ -65,33 +65,35 @@ namespace ProjectManagement.Controllers
                 }
             }
 
-            List<dynamic> userRolesList = new List<dynamic>();
+            List<dynamic> userList = new List<dynamic>();
             for (int i = 0; i < table.Rows.Count; i++)
             {
 
-                UserRole roles = new UserRole();
-                roles.Id = Convert.ToInt32(table.Rows[i]["id"]);
-                roles.Role = table.Rows[i]["role"].ToString();
-                userRolesList.Add(roles);
+                UserList users = new UserList();
+                users.Id = Convert.ToInt32(table.Rows[i]["id"]);
+                users.Username = table.Rows[i]["username"].ToString();
+                users.Password = table.Rows[i]["password"].ToString();
+                users.UserRolesId = Convert.ToInt32(table.Rows[i]["user_roles_id"]);
+                userList.Add(users);
             }
 
 
-            _objResponseModel.Data = userRolesList;
+            _objResponseModel.Data = userList;
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User Roles Data Received successfully";
+            _objResponseModel.Message = "User Data Received successfully";
             return _objResponseModel;
 
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ResponseModel Get(int id)
+        public UserListResponseModel Get(int id)
         {
-            ResponseModel _objResponseModel = new ResponseModel();
+            UserListResponseModel _objResponseModel = new UserListResponseModel();
 
             string query = @"
                             select * from
-                            user_roles where id=@id
+                            user_list where id=@id
                             ";
 
             DataTable table = new DataTable();
@@ -113,33 +115,35 @@ namespace ProjectManagement.Controllers
                 }
             }
 
-            List<dynamic> userRolesList = new List<dynamic>();
+            List<dynamic> userList = new List<dynamic>();
             for (int i = 0; i < table.Rows.Count; i++)
             {
 
-                UserRole roles = new UserRole();
-                roles.Id = Convert.ToInt32(table.Rows[i]["id"]);
-                roles.Role = table.Rows[i]["role"].ToString();
-                userRolesList.Add(roles);
+                UserList users = new UserList();
+                users.Id = Convert.ToInt32(table.Rows[i]["id"]);
+                users.Username = table.Rows[i]["username"].ToString();
+                users.Password = table.Rows[i]["password"].ToString();
+                users.UserRolesId = Convert.ToInt32(table.Rows[i]["user_roles_id"]);
+                userList.Add(users);
             }
 
 
-            _objResponseModel.Data = userRolesList;
+            _objResponseModel.Data = userList;
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User Roles Data Received successfully";
+            _objResponseModel.Message = "User Data Received successfully";
             return _objResponseModel;
 
         }
 
         // POST api/values
         [HttpPost]
-        public StatusResponseModel Post(UserRole rolesdata)
+        public UserListStatusResponseModel Post(UserList userdata)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            UserListStatusResponseModel _objResponseModel = new UserListStatusResponseModel();
 
             string query = @"
-                            insert into user_roles
-                            (role) values (@role)
+                            insert into user_list
+                            (username, password, user_roles_id) values (@username, @password, @user_roles_id)
                             ";
 
             DataTable table = new DataTable();
@@ -150,11 +154,13 @@ namespace ProjectManagement.Controllers
             using (SqlConnection myCon = new SqlConnection(sqlDataSource))
             {
                 myCon.Open();
-                using (SqlCommand addRole = new SqlCommand(query, myCon))
+                using (SqlCommand addUser = new SqlCommand(query, myCon))
                 {
-                    addRole.Parameters.AddWithValue("@role", rolesdata.Role);
+                    addUser.Parameters.AddWithValue("@username", userdata.Username);
+                    addUser.Parameters.AddWithValue("@password", userdata.Password);
+                    addUser.Parameters.AddWithValue("@user_roles_id", userdata.UserRolesId);
 
-                    myReader = addRole.ExecuteReader();
+                    myReader = addUser.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
                     myCon.Close();
@@ -162,19 +168,21 @@ namespace ProjectManagement.Controllers
             }
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "New role created successfully.";
+            _objResponseModel.Message = "New user created successfully.";
             return _objResponseModel;
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public StatusResponseModel Put(UserRole rolesdata)
+        public UserListStatusResponseModel Put(UserList userdata)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            UserListStatusResponseModel _objResponseModel = new UserListStatusResponseModel();
 
             string query = @"
-                           update user_roles set
-                           role = @role
+                           update user_list set
+                           username = @username,
+                           password = @password,
+                           user_roles_id = @user_roles_id
                            where id=@id
                            ";
 
@@ -189,8 +197,10 @@ namespace ProjectManagement.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
-                    myCommand.Parameters.AddWithValue("@id", rolesdata.Id);
-                    myCommand.Parameters.AddWithValue("@role", rolesdata.Role);
+                    myCommand.Parameters.AddWithValue("@id", userdata.Id);
+                    myCommand.Parameters.AddWithValue("@username", userdata.Username);
+                    myCommand.Parameters.AddWithValue("@password", userdata.Password);
+                    myCommand.Parameters.AddWithValue("@user_roles_id", userdata.UserRolesId);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -201,18 +211,18 @@ namespace ProjectManagement.Controllers
 
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User role updated successfully";
+            _objResponseModel.Message = "User updated successfully";
             return _objResponseModel;
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public StatusResponseModel Delete(int id)
+        public UserListStatusResponseModel Delete(int id)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            UserListStatusResponseModel _objResponseModel = new UserListStatusResponseModel();
 
             string query = @"
-                           delete from user_roles where id=@id
+                           delete from user_list where id=@id
                             ";
 
             DataTable table = new DataTable();
@@ -236,7 +246,7 @@ namespace ProjectManagement.Controllers
 
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User role deleted successfully";
+            _objResponseModel.Message = "User deleted successfully";
             return _objResponseModel;
 
         }

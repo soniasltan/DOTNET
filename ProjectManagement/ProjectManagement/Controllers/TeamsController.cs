@@ -11,14 +11,14 @@ using ProjectManagement.Models;
 
 namespace ProjectManagement.Controllers
 {
-    public class ResponseModel
+    public class TeamsResponseModel
     {
         public string Message { set; get; }
         public bool Status { set; get; }
         public List<dynamic> Data { set; get; }
     }
 
-    public class StatusResponseModel
+    public class TeamsStatusResponseModel
     {
         public string Message { set; get; }
         public bool Status { set; get; }
@@ -27,24 +27,24 @@ namespace ProjectManagement.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class UserRolesController : Controller
+    public class TeamsController : Controller
     {
         private IConfiguration _configuration;
 
-        public UserRolesController(IConfiguration config)
+        public TeamsController(IConfiguration config)
         {
             _configuration = config;
         }
 
         // GET: api/values
         [HttpGet]
-        public ResponseModel Get()
+        public TeamsResponseModel Get()
         {
-            ResponseModel _objResponseModel = new ResponseModel();
+            TeamsResponseModel _objResponseModel = new TeamsResponseModel();
 
             string query = @"
                             select * from
-                            user_roles
+                            teams
                             ";
 
             DataTable table = new DataTable();
@@ -65,33 +65,33 @@ namespace ProjectManagement.Controllers
                 }
             }
 
-            List<dynamic> userRolesList = new List<dynamic>();
+            List<dynamic> teamsList = new List<dynamic>();
             for (int i = 0; i < table.Rows.Count; i++)
             {
 
-                UserRole roles = new UserRole();
-                roles.Id = Convert.ToInt32(table.Rows[i]["id"]);
-                roles.Role = table.Rows[i]["role"].ToString();
-                userRolesList.Add(roles);
+                Team teams = new Team();
+                teams.Id = Convert.ToInt32(table.Rows[i]["id"]);
+                teams.Teamname = table.Rows[i]["teamname"].ToString();
+                teamsList.Add(teams);
             }
 
 
-            _objResponseModel.Data = userRolesList;
+            _objResponseModel.Data = teamsList;
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User Roles Data Received successfully";
+            _objResponseModel.Message = "Teams received successfully";
             return _objResponseModel;
 
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ResponseModel Get(int id)
+        public TeamsResponseModel Get(int id)
         {
-            ResponseModel _objResponseModel = new ResponseModel();
+            TeamsResponseModel _objResponseModel = new TeamsResponseModel();
 
             string query = @"
                             select * from
-                            user_roles where id=@id
+                            teams where id=@id
                             ";
 
             DataTable table = new DataTable();
@@ -113,33 +113,33 @@ namespace ProjectManagement.Controllers
                 }
             }
 
-            List<dynamic> userRolesList = new List<dynamic>();
+            List<dynamic> teamsList = new List<dynamic>();
             for (int i = 0; i < table.Rows.Count; i++)
             {
 
-                UserRole roles = new UserRole();
-                roles.Id = Convert.ToInt32(table.Rows[i]["id"]);
-                roles.Role = table.Rows[i]["role"].ToString();
-                userRolesList.Add(roles);
+                Team teams = new Team();
+                teams.Id = Convert.ToInt32(table.Rows[i]["id"]);
+                teams.Teamname = table.Rows[i]["teamname"].ToString();
+                teamsList.Add(teams);
             }
 
 
-            _objResponseModel.Data = userRolesList;
+            _objResponseModel.Data = teamsList;
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User Roles Data Received successfully";
+            _objResponseModel.Message = "Follow ups received successfully";
             return _objResponseModel;
 
         }
 
         // POST api/values
         [HttpPost]
-        public StatusResponseModel Post(UserRole rolesdata)
+        public TeamsStatusResponseModel Post(Team teamsdata)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            TeamsStatusResponseModel _objResponseModel = new TeamsStatusResponseModel();
 
             string query = @"
-                            insert into user_roles
-                            (role) values (@role)
+                            insert into teams
+                            (teamname) values (@teamname)
                             ";
 
             DataTable table = new DataTable();
@@ -150,11 +150,11 @@ namespace ProjectManagement.Controllers
             using (SqlConnection myCon = new SqlConnection(sqlDataSource))
             {
                 myCon.Open();
-                using (SqlCommand addRole = new SqlCommand(query, myCon))
+                using (SqlCommand addTeam = new SqlCommand(query, myCon))
                 {
-                    addRole.Parameters.AddWithValue("@role", rolesdata.Role);
-
-                    myReader = addRole.ExecuteReader();
+                    addTeam.Parameters.AddWithValue("@teamname", teamsdata.Teamname);
+                    
+                    myReader = addTeam.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
                     myCon.Close();
@@ -162,19 +162,19 @@ namespace ProjectManagement.Controllers
             }
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "New role created successfully.";
+            _objResponseModel.Message = "New team created successfully.";
             return _objResponseModel;
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public StatusResponseModel Put(UserRole rolesdata)
+        public TeamsStatusResponseModel Put(Team teamsdata)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            TeamsStatusResponseModel _objResponseModel = new TeamsStatusResponseModel();
 
             string query = @"
-                           update user_roles set
-                           role = @role
+                           update teams set
+                           teamname = @teamname
                            where id=@id
                            ";
 
@@ -189,8 +189,8 @@ namespace ProjectManagement.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
-                    myCommand.Parameters.AddWithValue("@id", rolesdata.Id);
-                    myCommand.Parameters.AddWithValue("@role", rolesdata.Role);
+                    myCommand.Parameters.AddWithValue("@id", teamsdata.Id);
+                    myCommand.Parameters.AddWithValue("@teamname", teamsdata.Teamname);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -201,18 +201,18 @@ namespace ProjectManagement.Controllers
 
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User role updated successfully";
+            _objResponseModel.Message = "Team updated successfully";
             return _objResponseModel;
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public StatusResponseModel Delete(int id)
+        public TeamsStatusResponseModel Delete(int id)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            TeamsStatusResponseModel _objResponseModel = new TeamsStatusResponseModel();
 
             string query = @"
-                           delete from user_roles where id=@id
+                           delete from teams where id=@id
                             ";
 
             DataTable table = new DataTable();
@@ -236,7 +236,7 @@ namespace ProjectManagement.Controllers
 
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User role deleted successfully";
+            _objResponseModel.Message = "Team deleted successfully";
             return _objResponseModel;
 
         }

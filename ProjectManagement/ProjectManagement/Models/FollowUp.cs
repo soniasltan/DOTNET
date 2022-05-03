@@ -8,7 +8,7 @@ namespace ProjectManagement.Models
         public int Id { get; set; }
         public int TaskId { get; set; }
         public string Notes { get; set; } = null!;
-        public DateTime? CreatedDate { get; set; }
+        public string? CreatedDate { get; set; }
         public int? UpdatedById { get; set; }
     }
 }

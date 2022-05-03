@@ -10,7 +10,7 @@ namespace ProjectManagement.Models
         public string ProjectDescription { get; set; } = null!;
         public int? ClientId { get; set; }
         public int? ProjectManagerId { get; set; }
-        public DateTime? CreatedDate { get; set; }
+        public string? CreatedDate { get; set; }
         public string? Status { get; set; }
     }
 }

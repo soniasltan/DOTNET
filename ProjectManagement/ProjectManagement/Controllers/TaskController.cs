@@ -168,14 +168,93 @@ namespace ProjectManagement.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public TaskStatusResponseModel Put(Task tasksdata)
         {
+            TaskStatusResponseModel _objResponseModel = new TaskStatusResponseModel();
+
+            string query = @"
+                           update task set
+                           project_id = @project_id,
+                           task_title = @task_title,
+                           task_description = @task_description,
+                           task_status = @task_status,
+                           assigned_to_id = @assigned_to_id,
+                           assigned_by_id = @assigned_by_id,
+                           created_date = @created_date,
+                           updated_by_id = @updated_by_id,
+                           attachment = @attachment
+                           where id=@id
+                           ";
+
+            DataTable table = new DataTable();
+
+            string sqlDataSource = _configuration.GetConnectionString("PMDB");
+            SqlDataReader myReader;
+
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@id", tasksdata.Id);
+                    myCommand.Parameters.AddWithValue("@project_id", tasksdata.ProjectId);
+                    myCommand.Parameters.AddWithValue("@task_title", tasksdata.TaskTitle);
+                    myCommand.Parameters.AddWithValue("@task_description", tasksdata.TaskDescription);
+                    myCommand.Parameters.AddWithValue("@task_status", tasksdata.TaskStatus);
+                    myCommand.Parameters.AddWithValue("@assigned_to_id", tasksdata.AssignedToId);
+                    myCommand.Parameters.AddWithValue("@assigned_by_id", tasksdata.AssignedById);
+                    myCommand.Parameters.AddWithValue("@created_date", tasksdata.CreatedDate);
+                    myCommand.Parameters.AddWithValue("@updated_by_id", tasksdata.UpdatedById);
+                    myCommand.Parameters.AddWithValue("@attachment", tasksdata.Attachment);
+
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+
+
+            _objResponseModel.Status = true;
+            _objResponseModel.Message = "Task updated successfully";
+            return _objResponseModel;
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public TaskStatusResponseModel Delete(int id)
         {
+            TaskStatusResponseModel _objResponseModel = new TaskStatusResponseModel();
+
+            string query = @"
+                           delete from task where id=@id
+                            ";
+
+            DataTable table = new DataTable();
+
+            string sqlDataSource = _configuration.GetConnectionString("PMDB");
+            SqlDataReader myReader;
+
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@id", id);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+
+
+            _objResponseModel.Status = true;
+            _objResponseModel.Message = "Task deleted successfully";
+            return _objResponseModel;
+
         }
     }
 }

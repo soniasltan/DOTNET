@@ -11,14 +11,14 @@ using ProjectManagement.Models;
 
 namespace ProjectManagement.Controllers
 {
-    public class ResponseModel
+    public class FollowUpsResponseModel
     {
         public string Message { set; get; }
         public bool Status { set; get; }
         public List<dynamic> Data { set; get; }
     }
 
-    public class StatusResponseModel
+    public class FollowUpsStatusResponseModel
     {
         public string Message { set; get; }
         public bool Status { set; get; }
@@ -27,24 +27,24 @@ namespace ProjectManagement.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class UserRolesController : Controller
+    public class FollowUpsController : Controller
     {
         private IConfiguration _configuration;
 
-        public UserRolesController(IConfiguration config)
+        public FollowUpsController(IConfiguration config)
         {
             _configuration = config;
         }
 
         // GET: api/values
         [HttpGet]
-        public ResponseModel Get()
+        public FollowUpsResponseModel Get()
         {
-            ResponseModel _objResponseModel = new ResponseModel();
+            FollowUpsResponseModel _objResponseModel = new FollowUpsResponseModel();
 
             string query = @"
                             select * from
-                            user_roles
+                            follow_ups
                             ";
 
             DataTable table = new DataTable();
@@ -65,33 +65,36 @@ namespace ProjectManagement.Controllers
                 }
             }
 
-            List<dynamic> userRolesList = new List<dynamic>();
+            List<dynamic> followUpsList = new List<dynamic>();
             for (int i = 0; i < table.Rows.Count; i++)
             {
 
-                UserRole roles = new UserRole();
-                roles.Id = Convert.ToInt32(table.Rows[i]["id"]);
-                roles.Role = table.Rows[i]["role"].ToString();
-                userRolesList.Add(roles);
+                FollowUp followUps = new FollowUp();
+                followUps.Id = Convert.ToInt32(table.Rows[i]["id"]);
+                followUps.TaskId = Convert.ToInt32(table.Rows[i]["task_id"]);
+                followUps.Notes = table.Rows[i]["notes"].ToString();
+                followUps.CreatedDate = table.Rows[i]["created_date"].ToString();
+                followUps.UpdatedById = Convert.ToInt32(table.Rows[i]["updated_by_id"]);
+                followUpsList.Add(followUps);
             }
 
 
-            _objResponseModel.Data = userRolesList;
+            _objResponseModel.Data = followUpsList;
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User Roles Data Received successfully";
+            _objResponseModel.Message = "Follow ups received successfully";
             return _objResponseModel;
 
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ResponseModel Get(int id)
+        public FollowUpsResponseModel Get(int id)
         {
-            ResponseModel _objResponseModel = new ResponseModel();
+            FollowUpsResponseModel _objResponseModel = new FollowUpsResponseModel();
 
             string query = @"
                             select * from
-                            user_roles where id=@id
+                            follow_ups where id=@id
                             ";
 
             DataTable table = new DataTable();
@@ -113,33 +116,36 @@ namespace ProjectManagement.Controllers
                 }
             }
 
-            List<dynamic> userRolesList = new List<dynamic>();
+            List<dynamic> followUpsList = new List<dynamic>();
             for (int i = 0; i < table.Rows.Count; i++)
             {
 
-                UserRole roles = new UserRole();
-                roles.Id = Convert.ToInt32(table.Rows[i]["id"]);
-                roles.Role = table.Rows[i]["role"].ToString();
-                userRolesList.Add(roles);
+                FollowUp followUps = new FollowUp();
+                followUps.Id = Convert.ToInt32(table.Rows[i]["id"]);
+                followUps.TaskId = Convert.ToInt32(table.Rows[i]["task_id"]);
+                followUps.Notes = table.Rows[i]["notes"].ToString();
+                followUps.CreatedDate = table.Rows[i]["created_date"].ToString();
+                followUps.UpdatedById = Convert.ToInt32(table.Rows[i]["updated_by_id"]);
+                followUpsList.Add(followUps);
             }
 
 
-            _objResponseModel.Data = userRolesList;
+            _objResponseModel.Data = followUpsList;
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User Roles Data Received successfully";
+            _objResponseModel.Message = "Follow ups received successfully";
             return _objResponseModel;
 
         }
 
         // POST api/values
         [HttpPost]
-        public StatusResponseModel Post(UserRole rolesdata)
+        public FollowUpsStatusResponseModel Post(FollowUp followupsdata)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            FollowUpsStatusResponseModel _objResponseModel = new FollowUpsStatusResponseModel();
 
             string query = @"
-                            insert into user_roles
-                            (role) values (@role)
+                            insert into follow_ups
+                            (task_id, notes, created_date, updated_by_id) values (@task_id, @notes, @created_date, @updated_by_id)
                             ";
 
             DataTable table = new DataTable();
@@ -150,11 +156,14 @@ namespace ProjectManagement.Controllers
             using (SqlConnection myCon = new SqlConnection(sqlDataSource))
             {
                 myCon.Open();
-                using (SqlCommand addRole = new SqlCommand(query, myCon))
+                using (SqlCommand addFollowUp = new SqlCommand(query, myCon))
                 {
-                    addRole.Parameters.AddWithValue("@role", rolesdata.Role);
+                    addFollowUp.Parameters.AddWithValue("@task_id", followupsdata.TaskId);
+                    addFollowUp.Parameters.AddWithValue("@notes", followupsdata.Notes);
+                    addFollowUp.Parameters.AddWithValue("@created_date", followupsdata.CreatedDate);
+                    addFollowUp.Parameters.AddWithValue("@updated_by_id", followupsdata.UpdatedById);
 
-                    myReader = addRole.ExecuteReader();
+                    myReader = addFollowUp.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
                     myCon.Close();
@@ -162,19 +171,22 @@ namespace ProjectManagement.Controllers
             }
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "New role created successfully.";
+            _objResponseModel.Message = "New follow up created successfully.";
             return _objResponseModel;
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public StatusResponseModel Put(UserRole rolesdata)
+        public FollowUpsStatusResponseModel Put(FollowUp followupdata)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            FollowUpsStatusResponseModel _objResponseModel = new FollowUpsStatusResponseModel();
 
             string query = @"
-                           update user_roles set
-                           role = @role
+                           update project set
+                           task_id = @task_id,
+                           notes = @notes,
+                           created_date = @created_date,
+                           updated_by_id = @updated_by_id
                            where id=@id
                            ";
 
@@ -189,8 +201,11 @@ namespace ProjectManagement.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
-                    myCommand.Parameters.AddWithValue("@id", rolesdata.Id);
-                    myCommand.Parameters.AddWithValue("@role", rolesdata.Role);
+                    myCommand.Parameters.AddWithValue("@id", followupdata.Id);
+                    myCommand.Parameters.AddWithValue("@task_id", followupdata.TaskId);
+                    myCommand.Parameters.AddWithValue("@notes", followupdata.Notes);
+                    myCommand.Parameters.AddWithValue("@created_date", followupdata.CreatedDate);
+                    myCommand.Parameters.AddWithValue("@updated_by_id", followupdata.UpdatedById);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -201,18 +216,18 @@ namespace ProjectManagement.Controllers
 
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User role updated successfully";
+            _objResponseModel.Message = "Follow up updated successfully";
             return _objResponseModel;
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public StatusResponseModel Delete(int id)
+        public FollowUpsStatusResponseModel Delete(int id)
         {
-            StatusResponseModel _objResponseModel = new StatusResponseModel();
+            FollowUpsStatusResponseModel _objResponseModel = new FollowUpsStatusResponseModel();
 
             string query = @"
-                           delete from user_roles where id=@id
+                           delete from follow_ups where id=@id
                             ";
 
             DataTable table = new DataTable();
@@ -236,7 +251,7 @@ namespace ProjectManagement.Controllers
 
 
             _objResponseModel.Status = true;
-            _objResponseModel.Message = "User role deleted successfully";
+            _objResponseModel.Message = "Follow up deleted successfully";
             return _objResponseModel;
 
         }
