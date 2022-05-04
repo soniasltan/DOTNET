@@ -115,8 +115,8 @@ namespace ProjectManagement.Controllers
 
             string query = @"
                            insert into task
-                           (project_id, task_title, task_description, task_status, assigned_to_id, created_date, updated_by_id)
-                    values (@project_id, @task_title, @task_description, @task_status, @assigned_to_id, @created_date, @updated_by_id);
+                           (project_id, task_title, task_description, task_status, assigned_to_id, assigned_by_id, created_date, updated_by_id, attachment)
+                    values (@project_id, @task_title, @task_description, @task_status, @assigned_to_id, @assigned_to_id, @created_date, @updated_by_id, @attachment);
                             ";
 
             string queryId = @"SELECT MAX(ID) AS LastID FROM task";
@@ -142,6 +142,7 @@ namespace ProjectManagement.Controllers
                     addTask.Parameters.AddWithValue("@assigned_by_id", taskdata.AssignedById);
                     addTask.Parameters.AddWithValue("@created_date", taskdata.CreatedDate);
                     addTask.Parameters.AddWithValue("@updated_by_id", taskdata.UpdatedById);
+                    addTask.Parameters.AddWithValue("@attachment", taskdata.Attachment);
 
                     myReader = addTask.ExecuteReader();
                     table.Load(myReader);
