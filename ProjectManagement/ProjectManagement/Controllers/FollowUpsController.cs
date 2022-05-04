@@ -182,7 +182,7 @@ namespace ProjectManagement.Controllers
             FollowUpsStatusResponseModel _objResponseModel = new FollowUpsStatusResponseModel();
 
             string query = @"
-                           update project set
+                           update follow_ups set
                            task_id = @task_id,
                            notes = @notes,
                            created_date = @created_date,
